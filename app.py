@@ -3,36 +3,28 @@ from flask import request, jsonify, make_response
 import random
 import socket
 import json
+import mariadb
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-quotes = [
-    {'id': 0,
-     'quotation': 'It is not only what you do, but also the attitude you bring to it, that makes you a success.',
-     'author': 'Don Schenck',
-     'hostname': '{hostname}'},
-    {'id': 1,
-     'quotation': 'Knowledge is power.',
-     'author': 'Francis Bacon',
-     'hostname': '{hostname}'},
-    {'id': 2,
-     'quotation': 'Life is really simple, but we insist on making it complicated.',
-     'author': 'Confucius',
-     'hostname': '{hostname}'},
-    {'id': 3,
-     'quotation': 'This above all, to thine own self be true.',
-     'author': 'William Shakespeare',
-     'hostname': '{hostname}'},
-    {'id': 4,
-     'quotation': 'I got a fever, and the only prescription is more cowbell.',
-     'author': 'Will Ferrell',
-     'hostname': '{hostname}'},
-    {'id': 5,
-     'quotation': 'Anyone who has ever made anything of importance was disciplined.',
-     'author': 'Andrew Hendrixson',
-     'hostname': '{hostname}'},
-]
+
+try:
+    conn = mariadb.connect(
+        user="root",
+        password="admin",
+        host=os.environ['DB_SERVICE_NAME'],
+        database="quotesdb",
+        port=3306)
+    
+    db_cursor = conn.cursor(dictionary=True)
+    db_cursor.execute("SELECT '-hostname-' as hostname, id, quotation, author FROM quotes ORDER BY author, id") 
+    quotes = db_cursor.fetchall()
+
+except mariadb.Error as e:
+    print("Error connecting to db")
+    sys.exit(1)
+
 
 @app.route('/', methods=['GET'])
 def home():
