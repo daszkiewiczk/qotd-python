@@ -4,26 +4,13 @@ import random
 import socket
 import json
 import mariadb
+import os
+import sys
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
 
-try:
-    conn = mariadb.connect(
-        user="root",
-        password="admin",
-        host=os.environ['DB_SERVICE_NAME'],
-        database="quotesdb",
-        port=3306)
-    
-    db_cursor = conn.cursor(dictionary=True)
-    db_cursor.execute("SELECT '-hostname-' as hostname, id, quotation, author FROM quotes ORDER BY author, id") 
-    quotes = db_cursor.fetchall()
-
-except mariadb.Error as e:
-    print("Error connecting to db")
-    sys.exit(1)
 
 
 @app.route('/', methods=['GET'])
@@ -54,7 +41,27 @@ def getQuoteById(id):
 
 @app.route('/quotes/random', methods=['GET'])
 def getRandom():
-    n = random.randint(0,5)
+    try:
+        conn = mariadb.connect(
+        user="root",
+        password="admin",
+        host=os.environ.get('DB_SERVICE_NAME'),
+        database="quotesdb",
+        port=3306)
+        db_cursor = conn.cursor(dictionary=True)
+        db_cursor.execute("SELECT '-hostname-' as hostname, id, quotation, author FROM quotes ORDER BY author, id") 
+        quotes = mycursor.fetchall()
+        conn.close()
+        n = random.randint(0,(mycursor.rowcount)-1)
+        
+        return prepareResponse(jsonify(replaceHostname(quotes[n])))
+
+    except mariadb.Error as e:
+        print("Error connecting to db")
+        sys.exit(1)
+
+
+
     return prepareResponse(jsonify(replaceHostname(quotes[n])))
 
 def prepareResponse(response):

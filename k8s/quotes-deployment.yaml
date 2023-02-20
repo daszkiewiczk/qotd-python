@@ -15,9 +15,12 @@ spec:
         app: quotes
     spec:
       containers:
-        - name: quotes
-          image: docker.io/daszkiewiczk/quotes:v1
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 10000
-              protocol: TCP
+      - name: quotes
+        image: docker.io/daszkiewiczk/quotes:v3
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 10000
+            protocol: TCP
+      env: 
+      - name: DB_SERVICE_NAME
+        value: "mysql"
