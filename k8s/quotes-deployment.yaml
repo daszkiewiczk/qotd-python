@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: quotes
-        image: docker.io/daszkiewiczk/quotes:v3
+        image: docker.io/daszkiewiczk/quotes:v8
         imagePullPolicy: Always
         ports:
           - containerPort: 10000
